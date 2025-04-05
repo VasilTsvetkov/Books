@@ -1,3 +1,5 @@
+using Books.Application;
+
 namespace Books.Api
 {
 	public class Program
@@ -9,6 +11,7 @@ namespace Books.Api
 			// Add services to the container.
 
 			builder.Services.AddControllers();
+			builder.Services.AddApplication();
 
 			var app = builder.Build();
 
