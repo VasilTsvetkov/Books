@@ -8,6 +8,8 @@ namespace Books.Application.Repositories
 
 		Task<Book?> GetByIdAsync(Guid id);
 
+		Task<Book?> GetBySlugAsync(string slug);
+
 		Task<IEnumerable<Book>> GetAllAsync();
 
 		Task<bool> UpdateAsync(Book book);

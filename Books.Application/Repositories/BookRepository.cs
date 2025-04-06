@@ -27,6 +27,12 @@ namespace Books.Application.Repositories
 			return Task.FromResult(book);
 		}
 
+		public Task<Book?> GetBySlugAsync(string slug)
+		{
+			var book = _books.FirstOrDefault(x => x.Slug == slug);
+			return Task.FromResult(book);
+		}
+
 		public Task<bool> UpdateAsync(Book book)
 		{
 			var bookIndex = _books.FindIndex(x => x.Id == book.Id);

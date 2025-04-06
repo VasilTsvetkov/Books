@@ -15,13 +15,15 @@ namespace Books.Api.Controllers
 			var book = request.MapToBook();
 
 			await bookRepository.CreateAsync(book);
-			return CreatedAtAction(nameof(Get), new { id  = book.Id }, book.MapToResponse());
+			return CreatedAtAction(nameof(Get), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
 		[HttpGet(ApiEndpoints.Books.Get)]
-		public async Task<IActionResult> Get([FromRoute]Guid id)
+		public async Task<IActionResult> Get([FromRoute]string idOrSlug)
 		{
-			var book = await bookRepository.GetByIdAsync(id);
+			var book = Guid.TryParse(idOrSlug, out var id)
+				? await bookRepository.GetByIdAsync(id)
+				: await bookRepository.GetBySlugAsync(idOrSlug);
 
 			if (book == null)
 			{
