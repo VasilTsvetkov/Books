@@ -1,49 +1,205 @@
-﻿using Books.Application.Models;
+﻿using Books.Application.Database;
+using Books.Application.Models;
+using Dapper;
 
 namespace Books.Application.Repositories
 {
 	public class BookRepository : IBookRepository
 	{
-		private readonly List<Book> _books = new();
+		private readonly IDbConnectionFactory _dbConnectionFactory;
 
-		public Task<bool> CreateAsync(Book book)
+		public BookRepository(IDbConnectionFactory dbConnectionFactory)
 		{
-			_books.Add(book);
-			return Task.FromResult(true);
+			_dbConnectionFactory = dbConnectionFactory;
 		}
 
-		public Task<bool> DeleteByIdAsync(Guid id)
+		public async Task<bool> CreateAsync(Book book)
 		{
-			var booksRemovedCount = _books.RemoveAll(x => x.Id == id);
-			return Task.FromResult(booksRemovedCount > 0);
-		}
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var transaction = connection.BeginTransaction();
 
-		public Task<IEnumerable<Book>> GetAllAsync()
-			=> Task.FromResult(_books.AsEnumerable());
+			var insertBookQuery = @"
+				INSERT INTO Books (Id, Title, Slug, Author, YearOfRelease)
+				VALUES (@Id, @Title, @Slug, @Author, @YearOfRelease);";
 
-		public Task<Book?> GetByIdAsync(Guid id)
-		{
-			var book = _books.FirstOrDefault(x => x.Id == id);
-			return Task.FromResult(book);
-		}
-
-		public Task<Book?> GetBySlugAsync(string slug)
-		{
-			var book = _books.FirstOrDefault(x => x.Slug == slug);
-			return Task.FromResult(book);
-		}
-
-		public Task<bool> UpdateAsync(Book book)
-		{
-			var bookIndex = _books.FindIndex(x => x.Id == book.Id);
-
-			if (bookIndex == -1)
+			var bookParams = new
 			{
-				return Task.FromResult(false);
+				book.Id,
+				book.Title,
+				book.Slug,
+				book.Author,
+				book.YearOfRelease,
+			};
+
+			var result = await connection.ExecuteAsync(insertBookQuery, bookParams, transaction);
+
+			if (result > 0)
+			{
+				var insertGenreQuery = @"
+					INSERT INTO Genres (BookId, Name)
+					VALUES (@BookId, @Name);";
+
+				var genreParams = new
+				{
+					BookId = book.Id,
+					Name = book.Genre
+				};
+
+				await connection.ExecuteAsync(insertGenreQuery, genreParams, transaction);
 			}
 
-			_books[bookIndex] = book;
-			return Task.FromResult(true);
+			transaction.Commit();
+			return result > 0;
+		}
+
+		public async Task<bool> DeleteByIdAsync(Guid id)
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var transaction = connection.BeginTransaction();
+
+			var deleteGenreQuery = @"
+				DELETE FROM Genres
+				WHERE BookId = @BookId;";
+
+			var genreResult = await connection.ExecuteAsync(deleteGenreQuery, new { BookId = id }, transaction);
+
+			var deleteBookQuery = @"
+				DELETE FROM Books
+				WHERE Id = @Id;";
+
+			var bookResult = await connection.ExecuteAsync(deleteBookQuery, new { Id = id }, transaction);
+
+			transaction.Commit();
+
+			return bookResult > 0;
+		}
+
+		public async Task<bool> ExistsByIdAsync(Guid id)
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+
+			var checkIfExistsQuery = @"
+				SELECT COUNT(1) FROM Books
+				WHERE Id = @Id;";
+
+			var result = await connection.ExecuteScalarAsync<int>(checkIfExistsQuery, new { Id = id });
+
+			return result > 0;
+		}
+
+		public async Task<IEnumerable<Book>> GetAllAsync()
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+
+			var selectBooksWithGenresQuery = @"
+				SELECT b.*, g.Name AS Genre FROM Books b
+				LEFT JOIN Genres g ON b.Id = g.BookId;";
+
+			var result = await connection.QueryAsync<Book>(selectBooksWithGenresQuery);
+
+			return result.Select(x => new Book
+			{
+				Id = x.Id,
+				Title = x.Title,
+				Author = x.Author,
+				YearOfRelease = x.YearOfRelease,
+				Genre = x.Genre
+			});
+		}
+
+		public async Task<Book?> GetByIdAsync(Guid id)
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+
+			var selectBookQuery = @"
+				SELECT * FROM Books
+				WHERE Id = @Id;";
+
+			var book = await connection.QuerySingleOrDefaultAsync<Book>(selectBookQuery, new { Id = id });
+
+			if (book == null)
+			{
+				return null;
+			}
+
+			var selectGenresQuery = @"
+				SELECT Name FROM Genres
+				WHERE BookId = @BookId;";
+
+			var genre = await connection.QueryFirstAsync<string>(selectGenresQuery, new { BookId = id });
+
+			book.Genre = genre;
+
+			return book;
+		}
+
+		public async Task<Book?> GetBySlugAsync(string slug)
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+
+			var selectBookQuery = @"
+				SELECT * FROM Books
+				WHERE Slug = @Slug;";
+
+			var book = await connection.QuerySingleOrDefaultAsync<Book>(selectBookQuery, new { Slug = slug });
+
+			if (book == null)
+			{
+				return null;
+			}
+
+			var selectGenresQuery = @"
+				SELECT Name FROM Genres
+				WHERE BookId = @BookId;";
+
+			var genre = await connection.QueryFirstAsync<string>(selectGenresQuery, new { BookId = book.Id });
+
+			book.Genre = genre;
+
+			return book;
+		}
+
+		public async Task<bool> UpdateAsync(Book book)
+		{
+			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var transaction = connection.BeginTransaction();
+
+			var deleteGenreQuery = @"
+				DELETE FROM Genres
+				WHERE BookId = @BookId;";
+
+			await connection.ExecuteAsync(deleteGenreQuery, new { BookId = book.Id }, transaction);
+
+			var insertGenreQuery = @"
+				INSERT INTO Genres (BookId, Name)
+				VALUES (@BookId, @Name);";
+
+			var genreParams = new
+			{
+				BookId = book.Id,
+				Name = book.Genre
+			};
+
+			await connection.ExecuteAsync(insertGenreQuery, genreParams, transaction);
+
+			var updateBookQuery = @"
+				UPDATE Books
+				SET Title = @Title, Slug = @Slug, Author = @Author, YearOfRelease = @YearOfRelease
+				WHERE Id = @Id;";
+
+			var bookParams = new
+			{
+				book.Id,
+				book.Title,
+				book.Slug,
+				book.Author,
+				book.YearOfRelease
+			};
+
+			var result = await connection.ExecuteAsync(updateBookQuery, bookParams, transaction);
+
+			transaction.Commit();
+			return result > 0;
 		}
 	}
 }

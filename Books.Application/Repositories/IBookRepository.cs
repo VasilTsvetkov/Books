@@ -15,5 +15,7 @@ namespace Books.Application.Repositories
 		Task<bool> UpdateAsync(Book book);
 
 		Task<bool> DeleteByIdAsync(Guid id);
+
+		Task<bool> ExistsByIdAsync(Guid id);
 	}
 }

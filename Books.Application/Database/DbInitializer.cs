@@ -17,16 +17,16 @@ namespace Books.Application.Database
 			{
 				var createDatabaseQuery = @"
                     IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BooksDB')
-                    BEGIN
-                        CREATE DATABASE BooksDB;
-                    END";
+						BEGIN
+							CREATE DATABASE BooksDB;
+						END";
 				await connection.ExecuteAsync(createDatabaseQuery);
 
 				var useDatabaseQuery = "USE BooksDB;";
 				await connection.ExecuteAsync(useDatabaseQuery);
 
-				var createTableQuery = @"
-					IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'BooksDB' AND xtype = 'U')
+				var createBooksTableQuery = @"
+					IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Books' AND xtype = 'U')
 						BEGIN
 							CREATE TABLE Books (
 								Id UNIQUEIDENTIFIER PRIMARY KEY, 
@@ -34,20 +34,31 @@ namespace Books.Application.Database
 								Slug NVARCHAR(255) NOT NULL,
 								Author NVARCHAR(255) NOT NULL,
 								YearOfRelease INT NOT NULL,
-								Genre NVARCHAR(100) NOT NULL
 							);
 						END";
 
-				await connection.ExecuteAsync(createTableQuery);
+				await connection.ExecuteAsync(createBooksTableQuery);
 
 				var createIndexQuery = @"
 					IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Books_Slug' AND object_id = OBJECT_ID('Books'))
-					BEGIN
-						CREATE UNIQUE INDEX IX_Books_Slug
-						ON Books (Slug);
-					END";
+						BEGIN
+							CREATE UNIQUE INDEX IX_Books_Slug
+							ON Books (Slug);
+						END";
 
 				await connection.ExecuteAsync(createIndexQuery);
+
+				var createGenresTableQuery = @"
+					IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Genres' AND xtype = 'U')
+						BEGIN
+							CREATE TABLE Genres (
+								BookId UNIQUEIDENTIFIER, 
+								Name NVARCHAR(100) NOT NULL,
+								CONSTRAINT FK_Genres_Books FOREIGN KEY (BookId) REFERENCES Books(Id)
+							);
+						END";
+
+				await connection.ExecuteAsync(createGenresTableQuery);
 			}
 		}
 	}
