@@ -1,5 +1,6 @@
 ﻿using Books.Application.Database;
 using Books.Application.Repositories;
+using Books.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Books.Application
@@ -9,6 +10,7 @@ namespace Books.Application
 		public static IServiceCollection AddApplication(this IServiceCollection services)
 		{
 			services.AddSingleton<IBookRepository, BookRepository>();
+			services.AddSingleton<IBookService, BookService>();
 			return services;
 		}
 

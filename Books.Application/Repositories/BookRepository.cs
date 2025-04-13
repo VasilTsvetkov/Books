@@ -4,18 +4,11 @@ using Dapper;
 
 namespace Books.Application.Repositories
 {
-	public class BookRepository : IBookRepository
+	public class BookRepository(IDbConnectionFactory dbConnectionFactory) : IBookRepository
 	{
-		private readonly IDbConnectionFactory _dbConnectionFactory;
-
-		public BookRepository(IDbConnectionFactory dbConnectionFactory)
-		{
-			_dbConnectionFactory = dbConnectionFactory;
-		}
-
 		public async Task<bool> CreateAsync(Book book)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 			using var transaction = connection.BeginTransaction();
 
 			var insertBookQuery = @"
@@ -54,7 +47,7 @@ namespace Books.Application.Repositories
 
 		public async Task<bool> DeleteByIdAsync(Guid id)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 			using var transaction = connection.BeginTransaction();
 
 			var deleteGenreQuery = @"
@@ -76,7 +69,7 @@ namespace Books.Application.Repositories
 
 		public async Task<bool> ExistsByIdAsync(Guid id)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 
 			var checkIfExistsQuery = @"
 				SELECT COUNT(1) FROM Books
@@ -89,7 +82,7 @@ namespace Books.Application.Repositories
 
 		public async Task<IEnumerable<Book>> GetAllAsync()
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 
 			var selectBooksWithGenresQuery = @"
 				SELECT b.*, g.Name AS Genre FROM Books b
@@ -109,7 +102,7 @@ namespace Books.Application.Repositories
 
 		public async Task<Book?> GetByIdAsync(Guid id)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 
 			var selectBookQuery = @"
 				SELECT * FROM Books
@@ -117,7 +110,7 @@ namespace Books.Application.Repositories
 
 			var book = await connection.QuerySingleOrDefaultAsync<Book>(selectBookQuery, new { Id = id });
 
-			if (book == null)
+			if (book is null)
 			{
 				return null;
 			}
@@ -135,7 +128,7 @@ namespace Books.Application.Repositories
 
 		public async Task<Book?> GetBySlugAsync(string slug)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 
 			var selectBookQuery = @"
 				SELECT * FROM Books
@@ -143,7 +136,7 @@ namespace Books.Application.Repositories
 
 			var book = await connection.QuerySingleOrDefaultAsync<Book>(selectBookQuery, new { Slug = slug });
 
-			if (book == null)
+			if (book is null)
 			{
 				return null;
 			}
@@ -161,7 +154,7 @@ namespace Books.Application.Repositories
 
 		public async Task<bool> UpdateAsync(Book book)
 		{
-			using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+			using var connection = await dbConnectionFactory.CreateConnectionAsync();
 			using var transaction = connection.BeginTransaction();
 
 			var deleteGenreQuery = @"

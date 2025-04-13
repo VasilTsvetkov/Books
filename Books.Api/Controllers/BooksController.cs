@@ -1,20 +1,19 @@
 ﻿using Books.Api.Mapping;
-using Books.Application.Models;
-using Books.Application.Repositories;
+using Books.Application.Services;
 using Books.Contracts.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Api.Controllers
 {
 	[ApiController]
-	public class BooksController(IBookRepository bookRepository) : ControllerBase
+	public class BooksController(IBookService bookService) : ControllerBase
 	{
 		[HttpPost(ApiEndpoints.Books.Create)]
 		public async Task<IActionResult> Create([FromBody]UpsertBookRequest request)
 		{
 			var book = request.MapToBook();
 
-			await bookRepository.CreateAsync(book);
+			await bookService.CreateAsync(book);
 			return CreatedAtAction(nameof(Get), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
@@ -22,10 +21,10 @@ namespace Books.Api.Controllers
 		public async Task<IActionResult> Get([FromRoute]string idOrSlug)
 		{
 			var book = Guid.TryParse(idOrSlug, out var id)
-				? await bookRepository.GetByIdAsync(id)
-				: await bookRepository.GetBySlugAsync(idOrSlug);
+				? await bookService.GetByIdAsync(id)
+				: await bookService.GetBySlugAsync(idOrSlug);
 
-			if (book == null)
+			if (book is null)
 			{
 				return NotFound();
 			}
@@ -36,7 +35,7 @@ namespace Books.Api.Controllers
 		[HttpGet(ApiEndpoints.Books.GetAll)]
 		public async Task<IActionResult> GetAll()
 		{
-			var books = await bookRepository.GetAllAsync();
+			var books = await bookService.GetAllAsync();
 
 			return Ok(books.MapToResponse());
 		}
@@ -46,20 +45,20 @@ namespace Books.Api.Controllers
 		{
 			var book = request.MapToBook(id);
 
-			var updated = await bookRepository.UpdateAsync(book);
+			var updatedBook = await bookService.UpdateAsync(book);
 
-			if (!updated)
+			if (updatedBook is null)
 			{
 				return NotFound();
 			}
 
-			return Ok(book.MapToResponse());
+			return Ok(updatedBook.MapToResponse());
 		}
 
 		[HttpDelete(ApiEndpoints.Books.Delete)]
 		public async Task<IActionResult> Delete([FromRoute] Guid id)
 		{
-			var deleted = await bookRepository.DeleteByIdAsync(id);
+			var deleted = await bookService.DeleteByIdAsync(id);
 
 			if (!deleted)
 			{

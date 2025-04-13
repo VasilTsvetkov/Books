@@ -8,18 +8,11 @@ namespace Books.Application.Database
 		Task<IDbConnection> CreateConnectionAsync();
 	}
 
-	public class MssqlConnectionFactory : IDbConnectionFactory
+	public class MssqlConnectionFactory(string connectionString) : IDbConnectionFactory
 	{
-		private readonly string _connectionString;
-
-		public MssqlConnectionFactory(string connectionString)
+		public async Task<IDbConnection> CreateConnectionAsync()
 		{
-			_connectionString = connectionString;
-		}
-
-        public async Task<IDbConnection> CreateConnectionAsync()
-		{
-			var connection = new SqlConnection(_connectionString);
+			var connection = new SqlConnection(connectionString);
 
 			await connection.OpenAsync();
 			return connection;

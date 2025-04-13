@@ -2,18 +2,11 @@
 
 namespace Books.Application.Database
 {
-	public class DbInitializer
+	public class DbInitializer(IDbConnectionFactory connectionFactory)
 	{
-		private readonly IDbConnectionFactory _connectionFactory;
-
-		public DbInitializer(IDbConnectionFactory connectionFactory)
-		{
-			_connectionFactory = connectionFactory;
-		}
-
 		public async Task InitializeAsync()
 		{
-			using (var connection = await _connectionFactory.CreateConnectionAsync())
+			using (var connection = await connectionFactory.CreateConnectionAsync())
 			{
 				var createDatabaseQuery = @"
                     IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'BooksDB')
