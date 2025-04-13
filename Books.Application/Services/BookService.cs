@@ -1,12 +1,17 @@
 ﻿using Books.Application.Models;
 using Books.Application.Repositories;
+using FluentValidation;
 
 namespace Books.Application.Services
 {
-	public class BookService(IBookRepository bookRepository) : IBookService
+	public class BookService(IBookRepository bookRepository, IValidator<Book> bookValidator) : IBookService
 	{
-		public Task<bool> CreateAsync(Book book)
-			=> bookRepository.CreateAsync(book);
+		public async Task<bool> CreateAsync(Book book)
+		{
+			await bookValidator.ValidateAndThrowAsync(book);
+
+			return await bookRepository.CreateAsync(book);
+		}
 
 		public Task<bool> DeleteByIdAsync(Guid id)
 			=> bookRepository.DeleteByIdAsync(id);
@@ -22,6 +27,8 @@ namespace Books.Application.Services
 
 		public async Task<Book?> UpdateAsync(Book book)
 		{
+			await bookValidator.ValidateAndThrowAsync(book);
+
 			var bookExists = await bookRepository.ExistsByIdAsync(book.Id);
 
 			if (!bookExists)

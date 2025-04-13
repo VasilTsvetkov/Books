@@ -1,3 +1,4 @@
+using Books.Api.Mapping;
 using Books.Application;
 using Books.Application.Database;
 
@@ -20,7 +21,7 @@ namespace Books.Api
 
 			app.UseAuthorization();
 
-
+			app.UseMiddleware<ValidationMappingMiddleware>();
 			app.MapControllers();
 
 			var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
