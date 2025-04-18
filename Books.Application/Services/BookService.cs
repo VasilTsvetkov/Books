@@ -6,37 +6,37 @@ namespace Books.Application.Services
 {
 	public class BookService(IBookRepository bookRepository, IValidator<Book> bookValidator) : IBookService
 	{
-		public async Task<bool> CreateAsync(Book book)
+		public async Task<bool> CreateAsync(Book book, CancellationToken token = default)
 		{
-			await bookValidator.ValidateAndThrowAsync(book);
+			await bookValidator.ValidateAndThrowAsync(book, token);
 
-			return await bookRepository.CreateAsync(book);
+			return await bookRepository.CreateAsync(book, token);
 		}
 
-		public Task<bool> DeleteByIdAsync(Guid id)
-			=> bookRepository.DeleteByIdAsync(id);
+		public Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
+			=> bookRepository.DeleteByIdAsync(id, token);
 
-		public Task<IEnumerable<Book>> GetAllAsync()
-			=> bookRepository.GetAllAsync();
+		public Task<IEnumerable<Book>> GetAllAsync(CancellationToken token = default)
+			=> bookRepository.GetAllAsync(token);
 
-		public Task<Book?> GetByIdAsync(Guid id)
-			=> bookRepository.GetByIdAsync(id);
+		public Task<Book?> GetByIdAsync(Guid id, CancellationToken token = default)
+			=> bookRepository.GetByIdAsync(id, token);
 
-		public Task<Book?> GetBySlugAsync(string slug)
-			=> bookRepository.GetBySlugAsync(slug);
+		public Task<Book?> GetBySlugAsync(string slug, CancellationToken token = default)
+			=> bookRepository.GetBySlugAsync(slug, token);
 
-		public async Task<Book?> UpdateAsync(Book book)
+		public async Task<Book?> UpdateAsync(Book book, CancellationToken token = default)
 		{
-			await bookValidator.ValidateAndThrowAsync(book);
+			await bookValidator.ValidateAndThrowAsync(book, token);
 
-			var bookExists = await bookRepository.ExistsByIdAsync(book.Id);
+			var bookExists = await bookRepository.ExistsByIdAsync(book.Id, token);
 
 			if (!bookExists)
 			{
 				return null;
 			}
 
-			await bookRepository.UpdateAsync(book);
+			await bookRepository.UpdateAsync(book, token);
 			return book;
 		}
 	}

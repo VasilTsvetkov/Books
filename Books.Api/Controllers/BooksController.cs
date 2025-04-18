@@ -9,20 +9,20 @@ namespace Books.Api.Controllers
 	public class BooksController(IBookService bookService) : ControllerBase
 	{
 		[HttpPost(ApiEndpoints.Books.Create)]
-		public async Task<IActionResult> Create([FromBody]UpsertBookRequest request)
+		public async Task<IActionResult> Create([FromBody]UpsertBookRequest request, CancellationToken token)
 		{
 			var book = request.MapToBook();
 
-			await bookService.CreateAsync(book);
+			await bookService.CreateAsync(book, token);
 			return CreatedAtAction(nameof(Get), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
 		[HttpGet(ApiEndpoints.Books.Get)]
-		public async Task<IActionResult> Get([FromRoute]string idOrSlug)
+		public async Task<IActionResult> Get([FromRoute]string idOrSlug, CancellationToken token)
 		{
 			var book = Guid.TryParse(idOrSlug, out var id)
-				? await bookService.GetByIdAsync(id)
-				: await bookService.GetBySlugAsync(idOrSlug);
+				? await bookService.GetByIdAsync(id, token)
+				: await bookService.GetBySlugAsync(idOrSlug, token);
 
 			if (book is null)
 			{
@@ -33,19 +33,19 @@ namespace Books.Api.Controllers
 		}
 
 		[HttpGet(ApiEndpoints.Books.GetAll)]
-		public async Task<IActionResult> GetAll()
+		public async Task<IActionResult> GetAll(CancellationToken token)
 		{
-			var books = await bookService.GetAllAsync();
+			var books = await bookService.GetAllAsync(token);
 
 			return Ok(books.MapToResponse());
 		}
 
 		[HttpPut(ApiEndpoints.Books.Update)]
-		public async Task<IActionResult> Update([FromRoute]Guid id, [FromBody]UpsertBookRequest request)
+		public async Task<IActionResult> Update([FromRoute]Guid id, [FromBody]UpsertBookRequest request, CancellationToken token)
 		{
 			var book = request.MapToBook(id);
 
-			var updatedBook = await bookService.UpdateAsync(book);
+			var updatedBook = await bookService.UpdateAsync(book, token);
 
 			if (updatedBook is null)
 			{
@@ -56,9 +56,9 @@ namespace Books.Api.Controllers
 		}
 
 		[HttpDelete(ApiEndpoints.Books.Delete)]
-		public async Task<IActionResult> Delete([FromRoute] Guid id)
+		public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken token)
 		{
-			var deleted = await bookService.DeleteByIdAsync(id);
+			var deleted = await bookService.DeleteByIdAsync(id, token);
 
 			if (!deleted)
 			{
@@ -67,6 +67,5 @@ namespace Books.Api.Controllers
 
 			return Ok();
 		}
-
 	}
 }
