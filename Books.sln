@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Books.Api", "Books.Api\Books.Api.csproj", "{BA5C319F-103C-4290-89C3-CC11BD675B17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.Api", "Books.Api\Books.Api.csproj", "{BA5C319F-103C-4290-89C3-CC11BD675B17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Books.Application", "Books.Application\Books.Application.csproj", "{8D61701B-8CFF-4BB8-B953-72CE8B44A864}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.Application", "Books.Application\Books.Application.csproj", "{8D61701B-8CFF-4BB8-B953-72CE8B44A864}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Books.Contracts", "Books.Contracts\Books.Contracts.csproj", "{F8BBB4DC-70AE-4E94-9E56-E96F32DB005F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Books.Contracts", "Books.Contracts\Books.Contracts.csproj", "{F8BBB4DC-70AE-4E94-9E56-E96F32DB005F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Api", "Identity.Api\Identity.Api.csproj", "{0E0A1050-483D-4C3A-B7AF-CABDD6E81871}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{F8BBB4DC-70AE-4E94-9E56-E96F32DB005F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8BBB4DC-70AE-4E94-9E56-E96F32DB005F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8BBB4DC-70AE-4E94-9E56-E96F32DB005F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E0A1050-483D-4C3A-B7AF-CABDD6E81871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E0A1050-483D-4C3A-B7AF-CABDD6E81871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E0A1050-483D-4C3A-B7AF-CABDD6E81871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E0A1050-483D-4C3A-B7AF-CABDD6E81871}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
