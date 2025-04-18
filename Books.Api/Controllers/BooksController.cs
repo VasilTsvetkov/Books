@@ -1,10 +1,12 @@
 ﻿using Books.Api.Mapping;
 using Books.Application.Services;
 using Books.Contracts.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Api.Controllers
 {
+	[Authorize]
 	[ApiController]
 	public class BooksController(IBookService bookService) : ControllerBase
 	{
@@ -17,6 +19,7 @@ namespace Books.Api.Controllers
 			return CreatedAtAction(nameof(Get), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
+		[AllowAnonymous]
 		[HttpGet(ApiEndpoints.Books.Get)]
 		public async Task<IActionResult> Get([FromRoute]string idOrSlug, CancellationToken token)
 		{
@@ -32,6 +35,7 @@ namespace Books.Api.Controllers
 			return Ok(book.MapToResponse());
 		}
 
+		[AllowAnonymous]
 		[HttpGet(ApiEndpoints.Books.GetAll)]
 		public async Task<IActionResult> GetAll(CancellationToken token)
 		{

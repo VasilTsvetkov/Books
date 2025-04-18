@@ -1,6 +1,9 @@
 using Books.Api.Mapping;
 using Books.Application;
 using Books.Application.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Books.Api
 {
@@ -11,6 +14,29 @@ namespace Books.Api
 			var builder = WebApplication.CreateBuilder(args);
 			var config = builder.Configuration;
 
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters
+				{
+					IssuerSigningKey = new SymmetricSecurityKey(
+						Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
+					ValidateIssuerSigningKey = true,
+					ValidateLifetime = true,
+					ValidIssuer = config["Jwt:Issuer"]!,
+					ValidAudience = config["Jwt:Audience"]!,
+					ValidateIssuer = true,
+					ValidateAudience = true
+				};
+			});
+
+			builder.Services.AddAuthorization();
+
 			builder.Services.AddControllers();
 			builder.Services.AddApplication();
 			builder.Services.AddDatabase(config["Database:ConnectionString"]!);
@@ -19,6 +45,7 @@ namespace Books.Api
 
 			app.UseHttpsRedirection();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 			app.UseMiddleware<ValidationMappingMiddleware>();
