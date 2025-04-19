@@ -4,7 +4,9 @@ using FluentValidation;
 
 namespace Books.Application.Services
 {
-	public class BookService(IBookRepository bookRepository, IValidator<Book> bookValidator) : IBookService
+	public class BookService(IBookRepository bookRepository, 
+		IValidator<Book> bookValidator, 
+		IRatingRepository ratingRepository) : IBookService
 	{
 		public async Task<bool> CreateAsync(Book book, CancellationToken token = default)
 		{
@@ -16,16 +18,16 @@ namespace Books.Application.Services
 		public Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
 			=> bookRepository.DeleteByIdAsync(id, token);
 
-		public Task<IEnumerable<Book>> GetAllAsync(CancellationToken token = default)
-			=> bookRepository.GetAllAsync(token);
+		public Task<IEnumerable<Book>> GetAllAsync(Guid? userId = default, CancellationToken token = default)
+			=> bookRepository.GetAllAsync(userId, token);
 
-		public Task<Book?> GetByIdAsync(Guid id, CancellationToken token = default)
-			=> bookRepository.GetByIdAsync(id, token);
+		public Task<Book?> GetByIdAsync(Guid id, Guid? userId = default, CancellationToken token = default)
+			=> bookRepository.GetByIdAsync(id, userId, token);
 
-		public Task<Book?> GetBySlugAsync(string slug, CancellationToken token = default)
-			=> bookRepository.GetBySlugAsync(slug, token);
+		public Task<Book?> GetBySlugAsync(string slug, Guid? userId = default, CancellationToken token = default)
+			=> bookRepository.GetBySlugAsync(slug, userId, token);
 
-		public async Task<Book?> UpdateAsync(Book book, CancellationToken token = default)
+		public async Task<Book?> UpdateAsync(Book book, Guid? userId = default, CancellationToken token = default)
 		{
 			await bookValidator.ValidateAndThrowAsync(book, token);
 
@@ -37,6 +39,17 @@ namespace Books.Application.Services
 			}
 
 			await bookRepository.UpdateAsync(book, token);
+
+			if (!userId.HasValue)
+			{
+				var rating = await ratingRepository.GetRatingAsync(book.Id, token);
+				book.Rating = rating;
+				return book;
+			}
+
+			var ratings = await ratingRepository.GetRatingAsync(book.Id, userId.Value, token);
+			book.Rating = ratings.Rating;
+			book.UserRating = ratings.UserRating;
 			return book;
 		}
 	}

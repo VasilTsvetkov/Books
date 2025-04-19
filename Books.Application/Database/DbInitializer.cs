@@ -52,6 +52,20 @@ namespace Books.Application.Database
 						END";
 
 				await connection.ExecuteAsync(createGenresTableQuery);
+
+				var createRatingsTableQuery = @"
+						IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Ratings' AND xtype = 'U')
+							BEGIN
+								CREATE TABLE Ratings (
+									UserId UNIQUEIDENTIFIER NOT NULL,
+									BookId UNIQUEIDENTIFIER NOT NULL,
+									Rating INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
+									PRIMARY KEY (UserId, BookId),
+									CONSTRAINT FK_Ratings_Books FOREIGN KEY (BookId) REFERENCES Books(Id)
+								);
+						END";
+
+				await connection.ExecuteAsync(createRatingsTableQuery);
 			}
 		}
 	}

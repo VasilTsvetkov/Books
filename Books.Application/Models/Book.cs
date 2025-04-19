@@ -10,7 +10,11 @@ namespace Books.Application.Models
 
 		public string Slug => GenerateSlug();
 
-		public required string Author { get; set; }
+        public float? Rating { get; set; }
+
+        public int? UserRating { get; set; }
+
+        public required string Author { get; set; }
 
 		public required int YearOfRelease { get; set; }
 

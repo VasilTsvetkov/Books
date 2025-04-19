@@ -11,6 +11,7 @@ namespace Books.Application
 		public static IServiceCollection AddApplication(this IServiceCollection services)
 		{
 			services.AddSingleton<IBookRepository, BookRepository>();
+			services.AddSingleton<IRatingRepository, RatingRepository>();
 			services.AddSingleton<IBookService, BookService>();
 			services.AddValidatorsFromAssemblyContaining<IApplicationMarker>(ServiceLifetime.Singleton);
 			return services;

@@ -1,4 +1,5 @@
-﻿using Books.Api.Mapping;
+﻿using Books.Api.Auth;
+using Books.Api.Mapping;
 using Books.Application.Services;
 using Books.Contracts.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Api.Controllers
 {
-	[ApiController]
+    [ApiController]
 	public class BooksController(IBookService bookService) : ControllerBase
 	{
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]
@@ -22,9 +23,11 @@ namespace Books.Api.Controllers
 		[HttpGet(ApiEndpoints.Books.Get)]
 		public async Task<IActionResult> Get([FromRoute]string idOrSlug, CancellationToken token)
 		{
+			var userId = HttpContext.GetUserId();
+
 			var book = Guid.TryParse(idOrSlug, out var id)
-				? await bookService.GetByIdAsync(id, token)
-				: await bookService.GetBySlugAsync(idOrSlug, token);
+				? await bookService.GetByIdAsync(id, userId, token)
+				: await bookService.GetBySlugAsync(idOrSlug, userId, token);
 
 			if (book is null)
 			{
@@ -37,7 +40,8 @@ namespace Books.Api.Controllers
 		[HttpGet(ApiEndpoints.Books.GetAll)]
 		public async Task<IActionResult> GetAll(CancellationToken token)
 		{
-			var books = await bookService.GetAllAsync(token);
+			var userId = HttpContext.GetUserId();
+			var books = await bookService.GetAllAsync(userId, token);
 
 			return Ok(books.MapToResponse());
 		}
@@ -46,9 +50,10 @@ namespace Books.Api.Controllers
 		[HttpPut(ApiEndpoints.Books.Update)]
 		public async Task<IActionResult> Update([FromRoute]Guid id, [FromBody]UpsertBookRequest request, CancellationToken token)
 		{
+			var userId = HttpContext.GetUserId();
 			var book = request.MapToBook(id);
 
-			var updatedBook = await bookService.UpdateAsync(book, token);
+			var updatedBook = await bookService.UpdateAsync(book, userId, token);
 
 			if (updatedBook is null)
 			{

@@ -1,3 +1,4 @@
+using Books.Api.Auth;
 using Books.Api.Mapping;
 using Books.Application;
 using Books.Application.Database;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Books.Api
 {
-	public class Program
+    public class Program
 	{
 		public static async Task Main(string[] args)
 		{

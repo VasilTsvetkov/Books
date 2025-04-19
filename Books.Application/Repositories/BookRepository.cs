@@ -84,15 +84,23 @@ namespace Books.Application.Repositories
 			return result > 0;
 		}
 
-		public async Task<IEnumerable<Book>> GetAllAsync(CancellationToken token = default)
+		public async Task<IEnumerable<Book>> GetAllAsync(Guid? userId = default, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
-			var selectBooksWithGenresQuery = @"
-				SELECT b.*, g.Name AS Genre FROM Books b
-				LEFT JOIN Genres g ON b.Id = g.BookId;";
+			var selectAllBooksQuery = @"
+				SELECT 
+					b.*, 
+					MAX(g.Name) AS Genre,
+					ROUND(AVG(CAST(r.Rating AS FLOAT)), 1) AS Rating,
+					myr.Rating AS UserRating
+				FROM Books b
+				LEFT JOIN Genres g ON b.Id = g.BookId
+				LEFT JOIN Ratings r ON b.Id = r.BookId
+				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @userId
+				GROUP BY b.Id, b.Title, b.Author, b.YearOfRelease, b.Slug, myr.Rating";
 
-			var command = new CommandDefinition(selectBooksWithGenresQuery, cancellationToken: token);
+			var command = new CommandDefinition(selectAllBooksQuery, new { UserId = userId }, cancellationToken: token);
 			var result = await connection.QueryAsync<Book>(command);
 
 			return result.Select(x => new Book
@@ -101,19 +109,28 @@ namespace Books.Application.Repositories
 				Title = x.Title,
 				Author = x.Author,
 				YearOfRelease = x.YearOfRelease,
-				Genre = x.Genre
+				Genre = x.Genre,
+				Rating = (float?)x.Rating,
+				UserRating = (int?)x.UserRating
 			});
 		}
 
-		public async Task<Book?> GetByIdAsync(Guid id, CancellationToken token = default)
+		public async Task<Book?> GetByIdAsync(Guid id, Guid? userId = default, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
 			var selectBookQuery = @"
-				SELECT * FROM Books
-				WHERE Id = @Id;";
+				SELECT 
+					b.*, 
+					ROUND(AVG(r.Rating * 1.0), 1) AS Rating, 
+					myr.Rating AS UserRating
+				FROM Books b
+				LEFT JOIN Ratings r ON b.Id = r.BookId
+				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @UserId
+				WHERE b.Id = @Id
+				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating;";
 
-			var bookCommand = new CommandDefinition(selectBookQuery, new { Id = id }, cancellationToken: token);
+			var bookCommand = new CommandDefinition(selectBookQuery, new { Id = id, UserId = userId }, cancellationToken: token);
 			var book = await connection.QuerySingleOrDefaultAsync<Book>(bookCommand);
 
 			if (book is null)
@@ -132,15 +149,22 @@ namespace Books.Application.Repositories
 			return book;
 		}
 
-		public async Task<Book?> GetBySlugAsync(string slug, CancellationToken token = default)
+		public async Task<Book?> GetBySlugAsync(string slug, Guid? userId = default, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
 			var selectBookQuery = @"
-				SELECT * FROM Books
-				WHERE Slug = @Slug;";
+				SELECT 
+					b.*, 
+					ROUND(AVG(r.Rating * 1.0), 1) AS Rating, 
+					myr.Rating AS UserRating
+				FROM Books b
+				LEFT JOIN Ratings r ON b.Id = r.BookId
+				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @UserId
+				WHERE b.Slug = @Slug
+				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating;";
 
-			var bookCommand = new CommandDefinition(selectBookQuery, new { Slug = slug }, cancellationToken: token);
+			var bookCommand = new CommandDefinition(selectBookQuery, new { Slug = slug, UserId = userId }, cancellationToken: token);
 			var book = await connection.QuerySingleOrDefaultAsync<Book>(bookCommand);
 
 			if (book is null)
