@@ -35,7 +35,16 @@ namespace Books.Api
 				};
 			});
 
-			builder.Services.AddAuthorization();
+			builder.Services.AddAuthorization(options =>
+			{
+				options.AddPolicy(AuthConstants.AdminUserPolicyName,
+					p => p.RequireClaim(AuthConstants.AdminUserClaimName, "true"));
+
+				options.AddPolicy(AuthConstants.TrustedMemberPolicyName,
+					p => p.RequireAssertion(c => 
+					c.User.HasClaim(m => m is { Type: AuthConstants.AdminUserClaimName, Value: "true" }) ||
+					c.User.HasClaim(m => m is { Type: AuthConstants.TrustedMemberClaimName, Value: "true" })));
+			});
 
 			builder.Services.AddControllers();
 			builder.Services.AddApplication();
