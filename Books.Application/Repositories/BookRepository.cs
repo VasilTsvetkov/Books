@@ -84,35 +84,34 @@ namespace Books.Application.Repositories
 			return result > 0;
 		}
 
-		public async Task<IEnumerable<Book>> GetAllAsync(Guid? userId = default, CancellationToken token = default)
+		public async Task<IEnumerable<Book>> GetAllAsync(GetAllBooksOptions options, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
-			var selectAllBooksQuery = @"
+			var query = @"
 				SELECT 
-					b.*, 
+					b.*,
 					MAX(g.Name) AS Genre,
 					ROUND(AVG(CAST(r.Rating AS FLOAT)), 1) AS Rating,
 					myr.Rating AS UserRating
 				FROM Books b
 				LEFT JOIN Genres g ON b.Id = g.BookId
 				LEFT JOIN Ratings r ON b.Id = r.BookId
-				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @userId
-				GROUP BY b.Id, b.Title, b.Author, b.YearOfRelease, b.Slug, myr.Rating";
+				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @UserId
+				WHERE (@Title IS NULL OR LOWER(b.Title) LIKE LOWER('%' + @Title + '%'))
+				  AND (@YearOfRelease IS NULL OR b.YearOfRelease = @YearOfRelease)
+				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating";
 
-			var command = new CommandDefinition(selectAllBooksQuery, new { UserId = userId }, cancellationToken: token);
-			var result = await connection.QueryAsync<Book>(command);
-
-			return result.Select(x => new Book
+			var parameters = new
 			{
-				Id = x.Id,
-				Title = x.Title,
-				Author = x.Author,
-				YearOfRelease = x.YearOfRelease,
-				Genre = x.Genre,
-				Rating = (float?)x.Rating,
-				UserRating = (int?)x.UserRating
-			});
+				UserId = options.UserId,
+				Title = options.Title,
+				YearOfRelease = options.YearOfRelease
+			};
+
+			var command = new CommandDefinition(query, parameters, cancellationToken: token);
+			var result = await connection.QueryAsync<Book>(command);
+			return result;
 		}
 
 		public async Task<Book?> GetByIdAsync(Guid bookId, Guid? userId = default, CancellationToken token = default)

@@ -4,9 +4,10 @@ using FluentValidation;
 
 namespace Books.Application.Services
 {
-	public class BookService(IBookRepository bookRepository, 
-		IValidator<Book> bookValidator, 
-		IRatingRepository ratingRepository) : IBookService
+	public class BookService(IBookRepository bookRepository,
+		IValidator<Book> bookValidator,
+		IRatingRepository ratingRepository,
+		IValidator<GetAllBooksOptions> optionsValidator) : IBookService
 	{
 		public async Task<bool> CreateAsync(Book book, CancellationToken token = default)
 		{
@@ -18,8 +19,12 @@ namespace Books.Application.Services
 		public Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default)
 			=> bookRepository.DeleteByIdAsync(bookId, token);
 
-		public Task<IEnumerable<Book>> GetAllAsync(Guid? userId = default, CancellationToken token = default)
-			=> bookRepository.GetAllAsync(userId, token);
+		public async Task<IEnumerable<Book>> GetAllAsync(GetAllBooksOptions options, CancellationToken token = default)
+		{
+			await optionsValidator.ValidateAndThrowAsync(options, token);
+
+			return await bookRepository.GetAllAsync(options, token);
+		}
 
 		public Task<Book?> GetByIdAsync(Guid bookId, Guid? userId = default, CancellationToken token = default)
 			=> bookRepository.GetByIdAsync(bookId, userId, token);

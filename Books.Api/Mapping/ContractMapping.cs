@@ -62,5 +62,20 @@ namespace Books.Api.Mapping
 				Rating = x.Rating,
 			});
 		}
+
+		public static GetAllBooksOptions MapToOptions(this GetAllBooksRequest request)
+		{
+			return new GetAllBooksOptions
+			{
+				Title = request.Title,
+				YearOfRelease = request.Year
+			};
+		}
+
+		public static GetAllBooksOptions WithUser(this GetAllBooksOptions options, Guid? userId)
+		{
+			options.UserId = userId;
+			return options;
+		}
 	}
 }
