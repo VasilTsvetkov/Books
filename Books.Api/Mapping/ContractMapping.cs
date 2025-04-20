@@ -52,5 +52,15 @@ namespace Books.Api.Mapping
 				Books = books.Select(MapToResponse)
 			};
 		}
+
+		public static IEnumerable<BookRatingResponse> MapToResponse(this IEnumerable<BookRating> ratings)
+		{
+			return ratings.Select(x => new BookRatingResponse
+			{
+				BookId = x.BookId,
+				Slug = x.Slug,
+				Rating = x.Rating,
+			});
+		}
 	}
 }

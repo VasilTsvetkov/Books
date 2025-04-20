@@ -1,4 +1,5 @@
-﻿using Books.Application.Repositories;
+﻿using Books.Application.Models;
+using Books.Application.Repositories;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -8,6 +9,9 @@ namespace Books.Application.Services
 	{
 		public async Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default)
 			=> await ratingRepository.DeleteRatingAsync(bookId, userId, token);
+
+		public Task<IEnumerable<BookRating>> GetRatingsForUserAsync(Guid userId, CancellationToken token = default)
+			=> ratingRepository.GetRatingsForUserAsync(userId, token);
 
 		public async Task<bool> RateBookAsync(Guid bookId, int rating, Guid userId, CancellationToken token = default)
 		{

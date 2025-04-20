@@ -1,4 +1,5 @@
 ﻿using Books.Application.Database;
+using Books.Application.Models;
 using Dapper;
 
 namespace Books.Application.Repositories
@@ -23,12 +24,12 @@ namespace Books.Application.Repositories
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
-			var query = @"
+			var getRatingQuery = @"
 				SELECT ROUND(AVG(CAST(Rating AS FLOAT)), 1)
 				FROM Ratings
 				WHERE BookId = @BookId";
 
-			var command = new CommandDefinition(query, new { BookId = bookId }, cancellationToken: token);
+			var command = new CommandDefinition(getRatingQuery, new { BookId = bookId }, cancellationToken: token);
 			return await connection.QuerySingleOrDefaultAsync<float?>(command);
 		}
 
@@ -36,14 +37,30 @@ namespace Books.Application.Repositories
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
-			var query = @"
+			var getRatingsQuery = @"
 				SELECT ROUND(AVG(CAST(Rating AS FLOAT)), 1), 
 				       (SELECT TOP 1 Rating FROM Ratings WHERE BookId = @BookId AND UserId = @UserId)
 				FROM Ratings
 				WHERE BookId = @BookId";
 
-			var command = new CommandDefinition(query, new { BookId = bookId, UserId = userId }, cancellationToken: token);
+			var command = new CommandDefinition(getRatingsQuery, new { BookId = bookId, UserId = userId }, cancellationToken: token);
 			var result = await connection.QuerySingleOrDefaultAsync<(float?, int?)>(command);
+
+			return result;
+		}
+
+		public async Task<IEnumerable<BookRating>> GetRatingsForUserAsync(Guid userId, CancellationToken token = default)
+		{
+			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
+
+			var getUserRatingsQuery = @"
+				SELECT r.BookId, b.Slug, r.Rating
+				FROM Ratings r
+				INNER JOIN Books b ON r.BookId = b.Id
+				WHERE r.UserId = @UserId";
+
+			var command = new CommandDefinition(getUserRatingsQuery, new { UserId = userId }, cancellationToken: token);
+			var result = await connection.QueryAsync<BookRating>(command);
 
 			return result;
 		}
