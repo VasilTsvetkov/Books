@@ -47,7 +47,7 @@ namespace Books.Application.Repositories
 			return result > 0;
 		}
 
-		public async Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
+		public async Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 			using var transaction = connection.BeginTransaction();
@@ -56,21 +56,21 @@ namespace Books.Application.Repositories
 				DELETE FROM Genres
 				WHERE BookId = @BookId;";
 
-			var genreCommand = new CommandDefinition(deleteGenreQuery, new { BookId = id }, transaction, cancellationToken: token);
+			var genreCommand = new CommandDefinition(deleteGenreQuery, new { BookId = bookId }, transaction, cancellationToken: token);
 			await connection.ExecuteAsync(genreCommand);
 
 			var deleteBookQuery = @"
 				DELETE FROM Books
 				WHERE Id = @Id;";
 
-			var bookCommand = new CommandDefinition(deleteBookQuery, new { Id = id }, transaction, cancellationToken: token);
+			var bookCommand = new CommandDefinition(deleteBookQuery, new { Id = bookId }, transaction, cancellationToken: token);
 			var bookResult = await connection.ExecuteAsync(bookCommand);
 
 			transaction.Commit();
 			return bookResult > 0;
 		}
 
-		public async Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default)
+		public async Task<bool> ExistsByIdAsync(Guid bookId, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
@@ -78,7 +78,7 @@ namespace Books.Application.Repositories
 				SELECT COUNT(1) FROM Books
 				WHERE Id = @Id;";
 
-			var command = new CommandDefinition(checkIfExistsQuery, new { Id = id }, cancellationToken: token);
+			var command = new CommandDefinition(checkIfExistsQuery, new { Id = bookId }, cancellationToken: token);
 			var result = await connection.ExecuteScalarAsync<int>(command);
 
 			return result > 0;
@@ -115,7 +115,7 @@ namespace Books.Application.Repositories
 			});
 		}
 
-		public async Task<Book?> GetByIdAsync(Guid id, Guid? userId = default, CancellationToken token = default)
+		public async Task<Book?> GetByIdAsync(Guid bookId, Guid? userId = default, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
 
@@ -130,7 +130,7 @@ namespace Books.Application.Repositories
 				WHERE b.Id = @Id
 				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating;";
 
-			var bookCommand = new CommandDefinition(selectBookQuery, new { Id = id, UserId = userId }, cancellationToken: token);
+			var bookCommand = new CommandDefinition(selectBookQuery, new { Id = bookId, UserId = userId }, cancellationToken: token);
 			var book = await connection.QuerySingleOrDefaultAsync<Book>(bookCommand);
 
 			if (book is null)
@@ -142,7 +142,7 @@ namespace Books.Application.Repositories
 				SELECT Name FROM Genres
 				WHERE BookId = @BookId;";
 
-			var genreCommand = new CommandDefinition(selectGenresQuery, new { BookId = id }, cancellationToken: token);
+			var genreCommand = new CommandDefinition(selectGenresQuery, new { BookId = bookId }, cancellationToken: token);
 			var genre = await connection.QueryFirstAsync<string>(genreCommand);
 
 			book.Genre = genre;

@@ -37,6 +37,8 @@ namespace Books.Api.Mapping
 				Id = book.Id,
 				Title = book.Title,
 				Slug = book.Slug,
+				Rating = book.Rating,
+				UserRating = book.UserRating,
 				Author = book.Author,
 				YearOfRelease = book.YearOfRelease,
 				Genre = book.Genre

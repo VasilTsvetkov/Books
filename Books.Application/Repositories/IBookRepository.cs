@@ -6,7 +6,7 @@ namespace Books.Application.Repositories
 	{
 		Task<bool> CreateAsync(Book book, CancellationToken token = default);
 
-		Task<Book?> GetByIdAsync(Guid id, Guid? userId = default, CancellationToken token = default);
+		Task<Book?> GetByIdAsync(Guid bookId, Guid? userId = default, CancellationToken token = default);
 
 		Task<Book?> GetBySlugAsync(string slug, Guid? userId = default, CancellationToken token = default);
 
@@ -14,8 +14,8 @@ namespace Books.Application.Repositories
 
 		Task<bool> UpdateAsync(Book book, CancellationToken token = default);
 
-		Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default);
+		Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default);
 
-		Task<bool> ExistsByIdAsync(Guid id, CancellationToken token = default);
+		Task<bool> ExistsByIdAsync(Guid bookId, CancellationToken token = default);
 	}
 }

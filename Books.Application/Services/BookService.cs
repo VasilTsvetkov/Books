@@ -15,14 +15,14 @@ namespace Books.Application.Services
 			return await bookRepository.CreateAsync(book, token);
 		}
 
-		public Task<bool> DeleteByIdAsync(Guid id, CancellationToken token = default)
-			=> bookRepository.DeleteByIdAsync(id, token);
+		public Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default)
+			=> bookRepository.DeleteByIdAsync(bookId, token);
 
 		public Task<IEnumerable<Book>> GetAllAsync(Guid? userId = default, CancellationToken token = default)
 			=> bookRepository.GetAllAsync(userId, token);
 
-		public Task<Book?> GetByIdAsync(Guid id, Guid? userId = default, CancellationToken token = default)
-			=> bookRepository.GetByIdAsync(id, userId, token);
+		public Task<Book?> GetByIdAsync(Guid bookId, Guid? userId = default, CancellationToken token = default)
+			=> bookRepository.GetByIdAsync(bookId, userId, token);
 
 		public Task<Book?> GetBySlugAsync(string slug, Guid? userId = default, CancellationToken token = default)
 			=> bookRepository.GetBySlugAsync(slug, userId, token);
