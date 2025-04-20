@@ -6,6 +6,9 @@ namespace Books.Application.Services
 {
 	public class RatingService(IRatingRepository ratingRepository, IBookRepository bookRepository) : IRatingService
 	{
+		public async Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default)
+			=> await ratingRepository.DeleteRatingAsync(bookId, userId, token);
+
 		public async Task<bool> RateBookAsync(Guid bookId, int rating, Guid userId, CancellationToken token = default)
 		{
 			if (rating is <= 0 or > 5)

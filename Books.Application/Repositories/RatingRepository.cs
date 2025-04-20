@@ -5,6 +5,20 @@ namespace Books.Application.Repositories
 {
 	public class RatingRepository(IDbConnectionFactory dbConnectionFactory) : IRatingRepository
 	{
+		public async Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default)
+		{
+			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
+
+			var deleteRatingQuery = @"
+				DELETE FROM Ratings
+				WHERE BookId = @BookId AND UserId = @UserId";
+
+			var command = new CommandDefinition(deleteRatingQuery, new { BookId = bookId, UserId = userId }, cancellationToken: token);
+			var result = await connection.ExecuteAsync(command);
+
+			return result > 0;
+		}
+
 		public async Task<float?> GetRatingAsync(Guid bookId, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);

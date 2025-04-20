@@ -7,5 +7,7 @@
 		Task<float?> GetRatingAsync(Guid bookId, CancellationToken token = default);
 
 		Task<(float? Rating, int? UserRating)> GetRatingAsync(Guid bookId, Guid userId, CancellationToken token = default);
+
+		Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default);
 	}
 }
