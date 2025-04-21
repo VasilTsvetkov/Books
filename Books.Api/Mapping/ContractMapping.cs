@@ -45,11 +45,15 @@ namespace Books.Api.Mapping
 			};
 		}
 
-		public static BooksResponse MapToResponse(this IEnumerable<Book> books)
+		public static BooksResponse MapToResponse(this IEnumerable<Book> books, 
+			int page, int pageSize, int totalCount)
 		{
 			return new BooksResponse
 			{
-				Books = books.Select(MapToResponse)
+				Items = books.Select(MapToResponse),
+				Page = page,
+				PageSize = pageSize,
+				Total = totalCount
 			};
 		}
 
@@ -71,7 +75,9 @@ namespace Books.Api.Mapping
 				YearOfRelease = request.Year,
 				SortField = request.SortBy?.Trim('+', '-'),
 				SortOrder = request.SortBy is null ? SortOrder.Unsorted :
-					request.SortBy.StartsWith('-') ? SortOrder.Descending : SortOrder.Ascending
+					request.SortBy.StartsWith('-') ? SortOrder.Descending : SortOrder.Ascending,
+				Page = request.Page,
+				PageSize = request.PageSize
 			};
 		}
 

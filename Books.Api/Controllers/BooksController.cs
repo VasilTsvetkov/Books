@@ -44,8 +44,9 @@ namespace Books.Api.Controllers
 			var options = request.MapToOptions()
 				.WithUser(userId);
 			var books = await bookService.GetAllAsync(options, token);
+			var bookCount = await bookService.GetCountAsync(options.Title, options.YearOfRelease, token);
 
-			return Ok(books.MapToResponse());
+			return Ok(books.MapToResponse(request.Page, request.PageSize, bookCount));
 		}
 
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]

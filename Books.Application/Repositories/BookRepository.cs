@@ -1,4 +1,5 @@
-﻿using Books.Application.Database;
+﻿using Azure.Core;
+using Books.Application.Database;
 using Books.Application.Models;
 using Dapper;
 
@@ -87,7 +88,7 @@ namespace Books.Application.Repositories
 		public async Task<IEnumerable<Book>> GetAllAsync(GetAllBooksOptions options, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
-			var orderClause = string.Empty;
+			var orderClause = "ORDER BY b.Title";
 
 			if (options.SortField is not null)
 			{
@@ -110,13 +111,16 @@ namespace Books.Application.Repositories
 				  AND (@YearOfRelease IS NULL OR b.YearOfRelease = @YearOfRelease)
 				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating 
 				{orderClause}
+				OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
 				""";
 
 			var parameters = new
 			{
 				UserId = options.UserId,
 				Title = options.Title,
-				YearOfRelease = options.YearOfRelease
+				YearOfRelease = options.YearOfRelease,
+				PageSize = options.PageSize,
+				Offset = (options.Page - 1) * options.PageSize
 			};
 
 			var command = new CommandDefinition(query, parameters, cancellationToken: token);
@@ -190,6 +194,28 @@ namespace Books.Application.Repositories
 
 			book.Genre = genre;
 			return book;
+		}
+
+		public async Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default)
+		{
+			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
+
+			var query = $"""
+				SELECT COUNT(*)
+				FROM Books b
+				WHERE (@Title IS NULL OR b.Title LIKE '%' + @Title + '%')
+				  AND (@YearOfRelease IS NULL OR b.YearOfRelease = @YearOfRelease)
+				""";
+
+			var parameters = new
+			{
+				Title = title,
+				YearOfRelease = yearOfRelease
+			};
+
+			var command = new CommandDefinition(query, parameters, cancellationToken: token);
+			var count = await connection.ExecuteScalarAsync<int>(command);
+			return count;
 		}
 
 		public async Task<bool> UpdateAsync(Book book, CancellationToken token = default)

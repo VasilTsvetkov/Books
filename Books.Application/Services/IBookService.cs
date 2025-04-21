@@ -15,5 +15,7 @@ namespace Books.Application.Services
 		Task<Book?> UpdateAsync(Book book, Guid? userId = default, CancellationToken token = default);
 
 		Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default);
+
+		Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default);
 	}
 }

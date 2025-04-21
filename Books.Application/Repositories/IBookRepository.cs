@@ -17,5 +17,7 @@ namespace Books.Application.Repositories
 		Task<bool> DeleteByIdAsync(Guid bookId, CancellationToken token = default);
 
 		Task<bool> ExistsByIdAsync(Guid bookId, CancellationToken token = default);
+
+		Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default);
 	}
 }

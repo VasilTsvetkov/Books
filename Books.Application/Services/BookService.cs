@@ -32,6 +32,9 @@ namespace Books.Application.Services
 		public Task<Book?> GetBySlugAsync(string slug, Guid? userId = default, CancellationToken token = default)
 			=> bookRepository.GetBySlugAsync(slug, userId, token);
 
+		public Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken token = default)
+			=> bookRepository.GetCountAsync(title, yearOfRelease, token);
+
 		public async Task<Book?> UpdateAsync(Book book, Guid? userId = default, CancellationToken token = default)
 		{
 			await bookValidator.ValidateAndThrowAsync(book, token);
