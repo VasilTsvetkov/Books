@@ -87,8 +87,16 @@ namespace Books.Application.Repositories
 		public async Task<IEnumerable<Book>> GetAllAsync(GetAllBooksOptions options, CancellationToken token = default)
 		{
 			using var connection = await dbConnectionFactory.CreateConnectionAsync(token);
+			var orderClause = string.Empty;
 
-			var query = @"
+			if (options.SortField is not null)
+			{
+				orderClause = $"""
+					ORDER BY b.{options.SortField} {(options.SortOrder == SortOrder.Ascending ? "ASC" : "DESC")}
+					""";
+			}
+
+			var query = $"""
 				SELECT 
 					b.*,
 					MAX(g.Name) AS Genre,
@@ -100,7 +108,9 @@ namespace Books.Application.Repositories
 				LEFT JOIN Ratings myr ON b.Id = myr.BookId AND myr.UserId = @UserId
 				WHERE (@Title IS NULL OR LOWER(b.Title) LIKE LOWER('%' + @Title + '%'))
 				  AND (@YearOfRelease IS NULL OR b.YearOfRelease = @YearOfRelease)
-				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating";
+				GROUP BY b.Id, b.Title, b.Slug, b.Author, b.YearOfRelease, myr.Rating 
+				{orderClause}
+				""";
 
 			var parameters = new
 			{
