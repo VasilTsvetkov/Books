@@ -1,4 +1,5 @@
-﻿using Books.Api.Auth;
+﻿using Asp.Versioning;
+using Books.Api.Auth;
 using Books.Api.Mapping;
 using Books.Application.Services;
 using Books.Contracts.Requests;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Books.Api.Controllers
 {
     [ApiController]
+	[ApiVersion(1.0)]
 	public class BooksController(IBookService bookService) : ControllerBase
 	{
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]
@@ -17,11 +19,11 @@ namespace Books.Api.Controllers
 			var book = request.MapToBook();
 
 			await bookService.CreateAsync(book, token);
-			return CreatedAtAction(nameof(Get), new { idOrSlug = book.Id }, book.MapToResponse());
+			return CreatedAtAction(nameof(GetV1), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
 		[HttpGet(ApiEndpoints.Books.Get)]
-		public async Task<IActionResult> Get([FromRoute]string idOrSlug, CancellationToken token)
+		public async Task<IActionResult> GetV1([FromRoute]string idOrSlug, CancellationToken token)
 		{
 			var userId = HttpContext.GetUserId();
 
