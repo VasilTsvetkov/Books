@@ -1,15 +1,18 @@
 using Asp.Versioning;
 using Books.Api.Auth;
 using Books.Api.Mapping;
+using Books.Api.Swagger;
 using Books.Application;
 using Books.Application.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 
 namespace Books.Api
 {
-    public class Program
+	public class Program
 	{
 		public static async Task Main(string[] args)
 		{
@@ -54,13 +57,30 @@ namespace Books.Api
 				options.AssumeDefaultVersionWhenUnspecified = true;
 				options.ReportApiVersions = true;
 				options.ApiVersionReader = new MediaTypeApiVersionReader("api-version");
-			}).AddMvc();
+			}).AddMvc().AddApiExplorer();
 
 			builder.Services.AddControllers();
+
+			builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+			builder.Services.AddSwaggerGen(options => options.OperationFilter<SwaggerDefaultValues>());
+
 			builder.Services.AddApplication();
 			builder.Services.AddDatabase(config["Database:ConnectionString"]!);
 
 			var app = builder.Build();
+
+			if (app.Environment.IsDevelopment())
+			{
+				app.UseSwagger();
+				app.UseSwaggerUI(x =>
+				{
+					foreach (var description in app.DescribeApiVersions())
+					{
+						x.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+							description.GroupName);
+					}
+				});
+			}
 
 			app.UseHttpsRedirection();
 
