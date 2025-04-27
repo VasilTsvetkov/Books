@@ -3,18 +3,21 @@ using Books.Api.Auth;
 using Books.Api.Mapping;
 using Books.Application.Services;
 using Books.Contracts.Requests;
+using Books.Contracts.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Books.Api.Controllers
 {
-    [ApiController]
+	[ApiController]
 	[ApiVersion(1.0)]
 	public class BooksController(IBookService bookService) : ControllerBase
 	{
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]
 		[HttpPost(ApiEndpoints.Books.Create)]
-		public async Task<IActionResult> Create([FromBody]UpsertBookRequest request, CancellationToken token)
+		[ProducesResponseType(typeof(BookResponse), StatusCodes.Status201Created)]
+		[ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Create([FromBody] UpsertBookRequest request, CancellationToken token)
 		{
 			var book = request.MapToBook();
 
@@ -23,7 +26,9 @@ namespace Books.Api.Controllers
 		}
 
 		[HttpGet(ApiEndpoints.Books.Get)]
-		public async Task<IActionResult> GetV1([FromRoute]string idOrSlug, CancellationToken token)
+		[ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<IActionResult> GetV1([FromRoute] string idOrSlug, CancellationToken token)
 		{
 			var userId = HttpContext.GetUserId();
 
@@ -40,6 +45,7 @@ namespace Books.Api.Controllers
 		}
 
 		[HttpGet(ApiEndpoints.Books.GetAll)]
+		[ProducesResponseType(typeof(BooksResponse), StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllBooksRequest request, CancellationToken token)
 		{
 			var userId = HttpContext.GetUserId();
@@ -53,7 +59,10 @@ namespace Books.Api.Controllers
 
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]
 		[HttpPut(ApiEndpoints.Books.Update)]
-		public async Task<IActionResult> Update([FromRoute]Guid id, [FromBody]UpsertBookRequest request, CancellationToken token)
+		[ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(ValidationFailureResponse), StatusCodes.Status400BadRequest)]
+		public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpsertBookRequest request, CancellationToken token)
 		{
 			var userId = HttpContext.GetUserId();
 			var book = request.MapToBook(id);
@@ -70,6 +79,8 @@ namespace Books.Api.Controllers
 
 		[Authorize(AuthConstants.AdminUserPolicyName)]
 		[HttpDelete(ApiEndpoints.Books.Delete)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken token)
 		{
 			var deleted = await bookService.DeleteByIdAsync(id, token);
