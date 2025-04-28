@@ -6,12 +6,13 @@ using Books.Contracts.Requests;
 using Books.Contracts.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace Books.Api.Controllers
 {
 	[ApiController]
 	[ApiVersion(1.0)]
-	public class BooksController(IBookService bookService) : ControllerBase
+	public class BooksController(IBookService bookService, IOutputCacheStore outputCacheStore) : ControllerBase
 	{
 		[Authorize(AuthConstants.TrustedMemberPolicyName)]
 		[HttpPost(ApiEndpoints.Books.Create)]
@@ -22,10 +23,12 @@ namespace Books.Api.Controllers
 			var book = request.MapToBook();
 
 			await bookService.CreateAsync(book, token);
+			await outputCacheStore.EvictByTagAsync("books", token);
 			return CreatedAtAction(nameof(GetV1), new { idOrSlug = book.Id }, book.MapToResponse());
 		}
 
 		[HttpGet(ApiEndpoints.Books.Get)]
+		[OutputCache(PolicyName = "BookCache")]
 		[ProducesResponseType(typeof(BookResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetV1([FromRoute] string idOrSlug, CancellationToken token)
@@ -45,6 +48,7 @@ namespace Books.Api.Controllers
 		}
 
 		[HttpGet(ApiEndpoints.Books.GetAll)]
+		[OutputCache(PolicyName = "BookCache")]
 		[ProducesResponseType(typeof(BooksResponse), StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetAll([FromQuery] GetAllBooksRequest request, CancellationToken token)
 		{
@@ -74,6 +78,7 @@ namespace Books.Api.Controllers
 				return NotFound();
 			}
 
+			await outputCacheStore.EvictByTagAsync("books", token);
 			return Ok(updatedBook.MapToResponse());
 		}
 
@@ -90,6 +95,7 @@ namespace Books.Api.Controllers
 				return NotFound();
 			}
 
+			await outputCacheStore.EvictByTagAsync("books", token);
 			return Ok();
 		}
 	}
