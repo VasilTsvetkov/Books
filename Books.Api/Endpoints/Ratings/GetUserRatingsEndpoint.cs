@@ -3,6 +3,7 @@
 	using Application.Services;
 	using Auth;
 	using Contracts.Responses;
+	using Mapping;
 
 	public static class GetUserRatingsEndpoint
 	{
@@ -16,7 +17,7 @@
 					{
 						var userId = context.GetUserId();
 						var ratings = await ratingService.GetRatingsForUserAsync(userId!.Value, token);
-						return TypedResults.Ok(ratings);
+						return TypedResults.Ok(ratings.MapToResponse());
 					})
 				.WithName(Name)
 				.Produces<BookRatingResponse>(StatusCodes.Status200OK)
