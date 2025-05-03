@@ -1,9 +1,9 @@
-﻿using Books.Api.Auth;
-using Books.Application.Services;
-using Microsoft.AspNetCore.OutputCaching;
-
-namespace Books.Api.Endpoints.Books
+﻿namespace Books.Api.Endpoints.Books
 {
+	using Application.Services;
+	using Auth;
+	using Microsoft.AspNetCore.OutputCaching;
+
 	public static class DeleteBookEndpoint
 	{
 		public const string Name = "DeleteBook";

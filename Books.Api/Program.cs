@@ -1,19 +1,19 @@
-using Asp.Versioning;
-using Books.Api.Auth;
-using Books.Api.Endpoints;
-using Books.Api.Health;
-using Books.Api.Mapping;
-using Books.Api.Swagger;
-using Books.Application;
-using Books.Application.Database;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Text;
-
 namespace Books.Api
 {
+	using Application;
+	using Application.Database;
+	using Asp.Versioning;
+	using Auth;
+	using Endpoints;
+	using Health;
+	using Mapping;
+	using Microsoft.AspNetCore.Authentication.JwtBearer;
+	using Microsoft.Extensions.Options;
+	using Microsoft.IdentityModel.Tokens;
+	using Swagger;
+	using Swashbuckle.AspNetCore.SwaggerGen;
+	using System.Text;
+
 	public class Program
 	{
 		public static async Task Main(string[] args)

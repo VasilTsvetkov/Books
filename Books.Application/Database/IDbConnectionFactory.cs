@@ -1,8 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
-
-namespace Books.Application.Database
+﻿namespace Books.Application.Database
 {
+	using Microsoft.Data.SqlClient;
+	using System.Data;
+
 	public interface IDbConnectionFactory
 	{
 		Task<IDbConnection> CreateConnectionAsync(CancellationToken token = default);

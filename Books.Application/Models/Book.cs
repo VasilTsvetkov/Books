@@ -1,7 +1,7 @@
-﻿using System.Text.RegularExpressions;
-
-namespace Books.Application.Models
+﻿namespace Books.Application.Models
 {
+	using System.Text.RegularExpressions;
+
 	public partial class Book
 	{
 		public required Guid Id { get; init; }
@@ -10,11 +10,11 @@ namespace Books.Application.Models
 
 		public string Slug => GenerateSlug();
 
-        public float? Rating { get; set; }
+		public float? Rating { get; set; }
 
-        public int? UserRating { get; set; }
+		public int? UserRating { get; set; }
 
-        public required string Author { get; set; }
+		public required string Author { get; set; }
 
 		public required int YearOfRelease { get; set; }
 

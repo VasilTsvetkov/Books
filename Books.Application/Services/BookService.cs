@@ -1,9 +1,9 @@
-﻿using Books.Application.Models;
-using Books.Application.Repositories;
-using FluentValidation;
-
-namespace Books.Application.Services
+﻿namespace Books.Application.Services
 {
+	using FluentValidation;
+	using Models;
+	using Repositories;
+
 	public class BookService(IBookRepository bookRepository,
 		IValidator<Book> bookValidator,
 		IRatingRepository ratingRepository,

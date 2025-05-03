@@ -1,8 +1,8 @@
-﻿using Books.Api.Auth;
-using Books.Application.Services;
-
-namespace Books.Api.Endpoints.Ratings
+﻿namespace Books.Api.Endpoints.Ratings
 {
+	using Application.Services;
+	using Auth;
+
 	public static class DeleteRatingEndpoint
 	{
 		public const string Name = "DeleteRating";

@@ -1,11 +1,11 @@
-﻿using Books.Application.Database;
-using Books.Application.Repositories;
-using Books.Application.Services;
-using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Books.Application
+﻿namespace Books.Application
 {
+	using Database;
+	using FluentValidation;
+	using Microsoft.Extensions.DependencyInjection;
+	using Repositories;
+	using Services;
+
 	public static class ApplicationServiceCollectionExtensions
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services)

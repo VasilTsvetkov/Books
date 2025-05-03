@@ -1,8 +1,8 @@
-﻿using Books.Application.Models;
-using FluentValidation;
-
-namespace Books.Application.Validators
+﻿namespace Books.Application.Validators
 {
+	using FluentValidation;
+	using Models;
+
 	public class GetAllBooksOptionsValidator : AbstractValidator<GetAllBooksOptions>
 	{
 		private static readonly string[] AcceptableSortFields =

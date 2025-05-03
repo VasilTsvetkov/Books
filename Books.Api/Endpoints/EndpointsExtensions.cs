@@ -1,8 +1,8 @@
-﻿using Books.Api.Endpoints.Books;
-using Books.Api.Endpoints.Ratings;
-
-namespace Books.Api.Endpoints
+﻿namespace Books.Api.Endpoints
 {
+	using Books;
+	using Ratings;
+
 	public static class EndpointsExtensions
 	{
 		public static IEndpointRouteBuilder MapApiEndpoints(this IEndpointRouteBuilder app)

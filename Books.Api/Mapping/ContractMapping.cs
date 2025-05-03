@@ -1,9 +1,9 @@
-﻿using Books.Application.Models;
-using Books.Contracts.Requests;
-using Books.Contracts.Responses;
-
-namespace Books.Api.Mapping
+﻿namespace Books.Api.Mapping
 {
+	using Application.Models;
+	using Contracts.Requests;
+	using Contracts.Responses;
+
 	public static class ContractMapping
 	{
 		public static Book MapToBook(this UpsertBookRequest request)

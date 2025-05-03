@@ -1,8 +1,8 @@
-﻿using Asp.Versioning.Builder;
-using Asp.Versioning.Conventions;
-
-namespace Books.Api.Endpoints
+﻿namespace Books.Api.Endpoints
 {
+	using Asp.Versioning.Builder;
+	using Asp.Versioning.Conventions;
+
 	public static class ApiVersioning
 	{
 		public static ApiVersionSet VersionSet { get; private set; }

@@ -1,7 +1,7 @@
-﻿using Books.Application.Models;
-
-namespace Books.Application.Services
+﻿namespace Books.Application.Services
 {
+	using Models;
+
 	public interface IRatingService
 	{
 		Task<bool> RateBookAsync(Guid bookId, int rating, Guid userId, CancellationToken token = default);

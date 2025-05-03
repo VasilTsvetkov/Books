@@ -1,7 +1,7 @@
-﻿using Books.Application.Models;
-
-namespace Books.Application.Services
+﻿namespace Books.Application.Services
 {
+	using Models;
+
 	public interface IBookService
 	{
 		Task<bool> CreateAsync(Book book, CancellationToken token = default);

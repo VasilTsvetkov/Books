@@ -1,9 +1,9 @@
-﻿using Books.Application.Models;
-using Books.Application.Repositories;
-using FluentValidation;
-
-namespace Books.Application.Validators
+﻿namespace Books.Application.Validators
 {
+	using FluentValidation;
+	using Models;
+	using Repositories;
+
 	public class BookValidator : AbstractValidator<Book>
 	{
 		private readonly IBookRepository _bookRepository;

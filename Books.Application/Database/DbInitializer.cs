@@ -1,7 +1,7 @@
-﻿using Dapper;
-
-namespace Books.Application.Database
+﻿namespace Books.Application.Database
 {
+	using Dapper;
+
 	public class DbInitializer(IDbConnectionFactory connectionFactory)
 	{
 		public async Task InitializeAsync()
