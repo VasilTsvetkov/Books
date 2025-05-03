@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using Books.Api.Auth;
+using Books.Api.Endpoints;
 using Books.Api.Health;
 using Books.Api.Mapping;
 using Books.Api.Swagger;
@@ -58,7 +59,9 @@ namespace Books.Api
 				options.AssumeDefaultVersionWhenUnspecified = true;
 				options.ReportApiVersions = true;
 				options.ApiVersionReader = new MediaTypeApiVersionReader("api-version");
-			}).AddMvc().AddApiExplorer();
+			}).AddApiExplorer();
+
+			builder.Services.AddEndpointsApiExplorer();
 
 			builder.Services.AddOutputCache(x =>
 			{
@@ -70,8 +73,6 @@ namespace Books.Api
 					.Tag("books"));
 			});
 
-			builder.Services.AddControllers();
-
 			builder.Services.AddHealthChecks()
 				.AddCheck<DatabaseHealthCheck>(DatabaseHealthCheck.Name);
 
@@ -82,6 +83,8 @@ namespace Books.Api
 			builder.Services.AddDatabase(config["Database:ConnectionString"]!);
 
 			var app = builder.Build();
+
+			app.CreateApiVersionSet();
 
 			if (app.Environment.IsDevelopment())
 			{
@@ -106,7 +109,7 @@ namespace Books.Api
 			app.UseOutputCache();
 
 			app.UseMiddleware<ValidationMappingMiddleware>();
-			app.MapControllers();
+			app.MapApiEndpoints();
 
 			var dbInitializer = app.Services.GetRequiredService<DbInitializer>();
 			await dbInitializer.InitializeAsync();
