@@ -1,10 +1,10 @@
-﻿using Books.Application.Models;
-using Books.Application.Repositories;
-using FluentValidation;
-using FluentValidation.Results;
-
-namespace Books.Application.Services
+﻿namespace Books.Application.Services
 {
+	using FluentValidation;
+	using FluentValidation.Results;
+	using Models;
+	using Repositories;
+
 	public class RatingService(IRatingRepository ratingRepository, IBookRepository bookRepository) : IRatingService
 	{
 		public async Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default)

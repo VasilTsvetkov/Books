@@ -1,8 +1,8 @@
-﻿using Books.Contracts.Responses;
-using FluentValidation;
-
-namespace Books.Api.Mapping
+﻿namespace Books.Api.Mapping
 {
+	using Contracts.Responses;
+	using FluentValidation;
+
 	public class ValidationMappingMiddleware(RequestDelegate next)
 	{
 		public async Task InvokeAsync(HttpContext context)

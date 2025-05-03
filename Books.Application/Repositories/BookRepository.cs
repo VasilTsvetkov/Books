@@ -1,10 +1,9 @@
-﻿using Azure.Core;
-using Books.Application.Database;
-using Books.Application.Models;
-using Dapper;
-
-namespace Books.Application.Repositories
+﻿namespace Books.Application.Repositories
 {
+	using Dapper;
+	using Database;
+	using Models;
+
 	public class BookRepository(IDbConnectionFactory dbConnectionFactory) : IBookRepository
 	{
 		public async Task<bool> CreateAsync(Book book, CancellationToken token = default)

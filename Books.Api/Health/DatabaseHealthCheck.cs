@@ -1,28 +1,26 @@
-﻿using Books.Application.Database;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-
-namespace Books.Api.Health;
-
-public class DatabaseHealthCheck(IDbConnectionFactory dbConnectionFactory, ILogger<DatabaseHealthCheck> logger) : IHealthCheck
+﻿namespace Books.Api.Health
 {
-	public const string Name = "Database";
+	using Application.Database;
+	using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-	private readonly IDbConnectionFactory _dbConnectionFactory = dbConnectionFactory;
-	private readonly ILogger<DatabaseHealthCheck> _logger = logger;
-
-	public async Task<HealthCheckResult> CheckHealthAsync(
-		HealthCheckContext context, CancellationToken cancellationToken = new())
+	public class DatabaseHealthCheck(IDbConnectionFactory dbConnectionFactory, ILogger<DatabaseHealthCheck> logger) : IHealthCheck
 	{
-		try
+		public const string Name = "Database";
+
+		public async Task<HealthCheckResult> CheckHealthAsync(
+			HealthCheckContext context, CancellationToken cancellationToken = new())
 		{
-			_ = await _dbConnectionFactory.CreateConnectionAsync(cancellationToken);
-			return HealthCheckResult.Healthy();
-		}
-		catch (Exception e)
-		{
-			const string errorMessage = "Database is unhealthy";
-			_logger.LogError(e, errorMessage);
-			return HealthCheckResult.Unhealthy(errorMessage, e);
+			try
+			{
+				_ = await dbConnectionFactory.CreateConnectionAsync(cancellationToken);
+				return HealthCheckResult.Healthy();
+			}
+			catch (Exception e)
+			{
+				const string errorMessage = "Database is unhealthy";
+				logger.LogError(e, errorMessage);
+				return HealthCheckResult.Unhealthy(errorMessage, e);
+			}
 		}
 	}
 }

@@ -1,9 +1,9 @@
-﻿using Books.Application.Database;
-using Books.Application.Models;
-using Dapper;
-
-namespace Books.Application.Repositories
+﻿namespace Books.Application.Repositories
 {
+	using Dapper;
+	using Database;
+	using Models;
+
 	public class RatingRepository(IDbConnectionFactory dbConnectionFactory) : IRatingRepository
 	{
 		public async Task<bool> DeleteRatingAsync(Guid bookId, Guid userId, CancellationToken token = default)

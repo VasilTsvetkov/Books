@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Text.Json;
-
-namespace Books.Api.Swagger
+﻿namespace Books.Api.Swagger
 {
+	using Microsoft.AspNetCore.Mvc.ApiExplorer;
+	using Microsoft.OpenApi.Models;
+	using Swashbuckle.AspNetCore.SwaggerGen;
+	using System.Text.Json;
+
 	public class SwaggerDefaultValues : IOperationFilter
 	{
 		public void Apply(OpenApiOperation operation, OperationFilterContext context)

@@ -1,11 +1,11 @@
-﻿using Books.Api.Auth;
-using Books.Api.Mapping;
-using Books.Application.Services;
-using Books.Contracts.Requests;
-using Books.Contracts.Responses;
-
-namespace Books.Api.Endpoints.Books
+﻿namespace Books.Api.Endpoints.Books
 {
+	using Application.Services;
+	using Auth;
+	using Contracts.Requests;
+	using Contracts.Responses;
+	using Mapping;
+
 	public static class GetAllBooksEndpoint
 	{
 		public const string Name = "GetBooks";

@@ -1,10 +1,10 @@
-﻿using Asp.Versioning.ApiExplorer;
-using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-
-namespace Books.Api.Swagger
+﻿namespace Books.Api.Swagger
 {
+	using Asp.Versioning.ApiExplorer;
+	using Microsoft.Extensions.Options;
+	using Microsoft.OpenApi.Models;
+	using Swashbuckle.AspNetCore.SwaggerGen;
+
 	public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 	{
 		private readonly IApiVersionDescriptionProvider _provider;

@@ -1,12 +1,12 @@
-﻿using Books.Api.Auth;
-using Books.Api.Mapping;
-using Books.Application.Services;
-using Books.Contracts.Requests;
-using Books.Contracts.Responses;
-using Microsoft.AspNetCore.OutputCaching;
-
-namespace Books.Api.Endpoints.Books
+﻿namespace Books.Api.Endpoints.Books
 {
+	using Application.Services;
+	using Auth;
+	using Contracts.Requests;
+	using Contracts.Responses;
+	using Mapping;
+	using Microsoft.AspNetCore.OutputCaching;
+
 	public static class CreateBookEndpoint
 	{
 		public const string Name = "CreateBook";

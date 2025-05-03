@@ -1,9 +1,9 @@
-﻿using Books.Api.Auth;
-using Books.Application.Services;
-using Books.Contracts.Responses;
-
-namespace Books.Api.Endpoints.Ratings
+﻿namespace Books.Api.Endpoints.Ratings
 {
+	using Application.Services;
+	using Auth;
+	using Contracts.Responses;
+
 	public static class GetUserRatingsEndpoint
 	{
 		public const string Name = "GetUserRatings";
