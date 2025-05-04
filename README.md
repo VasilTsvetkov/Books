@@ -25,3 +25,22 @@ Each book includes:
 - `POST /api/books/{id}/ratings` – Add or update a rating for a book  
 - `DELETE /api/books/{id}/ratings` – Remove your rating for a book  
 - `GET /api/ratings/me` – Get all ratings submitted by the current user
+
+### 💓 Health
+
+- `GET /_health` – Health check endpoint (returns `200 OK` if the service is running)
+
+## 🛠️ Technologies Used
+
+- **.NET 8**
+- **Dapper**
+- **SQL Server**
+- **FluentValidation**
+- **JWT (JSON Web Tokens)**
+- **API Versioning**
+- **Swagger / Swashbuckle**
+
+Architecture is split into:
+- `Books.Api` – Main web API project
+- `Books.Application` – Business logic and service layer
+- `Books.Contracts` – Shared models and contracts across projects
